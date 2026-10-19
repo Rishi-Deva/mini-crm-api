@@ -1,0 +1,7 @@
+.venv/
+.git/
+__pycache__/
+*.pyc
+crm.db
+tests/
+.pytest_cache/

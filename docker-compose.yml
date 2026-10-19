@@ -1,0 +1,14 @@
+services:
+  api:
+    build: .
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: sqlite:////data/crm.db
+      SECRET_KEY: ${SECRET_KEY:-dev-secret-key-change-me-in-production-0123456789}
+    volumes:
+      - crm_data:/data
+    restart: unless-stopped
+
+volumes:
+  crm_data:
