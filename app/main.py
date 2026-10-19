@@ -3,10 +3,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from . import models, schemas
+from .auth import get_current_user, router as auth_router
 from .db import Base, engine, get_db
 
 Base.metadata.create_all(engine)
 app = FastAPI(title="Mini CRM")
+app.include_router(auth_router)
+protected = [Depends(get_current_user)]
 
 
 def get_client_or_404(db: Session, client_id: int) -> models.Client:
@@ -26,7 +29,7 @@ def get_deal_or_404(db: Session, deal_id: int) -> models.Deal:
 # ---------- Clients ----------
 
 
-@app.post("/clients", response_model=schemas.ClientOut, status_code=201)
+@app.post("/clients", response_model=schemas.ClientOut, status_code=201, dependencies=protected)
 def create_client(data: schemas.ClientCreate, db: Session = Depends(get_db)):
     client = models.Client(**data.model_dump())
     db.add(client)
@@ -35,12 +38,12 @@ def create_client(data: schemas.ClientCreate, db: Session = Depends(get_db)):
     return client
 
 
-@app.get("/clients", response_model=list[schemas.ClientOut])
+@app.get("/clients", response_model=list[schemas.ClientOut], dependencies=protected)
 def list_clients(db: Session = Depends(get_db)):
     return db.scalars(select(models.Client)).all()
 
 
-@app.put("/clients/{client_id}", response_model=schemas.ClientOut)
+@app.put("/clients/{client_id}", response_model=schemas.ClientOut, dependencies=protected)
 def update_client(
     client_id: int, data: schemas.ClientCreate, db: Session = Depends(get_db)
 ):
@@ -52,7 +55,7 @@ def update_client(
     return client
 
 
-@app.delete("/clients/{client_id}", status_code=204)
+@app.delete("/clients/{client_id}", status_code=204, dependencies=protected)
 def delete_client(client_id: int, db: Session = Depends(get_db)):
     client = get_client_or_404(db, client_id)
     has_deals = db.scalars(
@@ -69,7 +72,7 @@ def delete_client(client_id: int, db: Session = Depends(get_db)):
 # ---------- Deals ----------
 
 
-@app.post("/deals", response_model=schemas.DealOut, status_code=201)
+@app.post("/deals", response_model=schemas.DealOut, status_code=201, dependencies=protected)
 def create_deal(data: schemas.DealCreate, db: Session = Depends(get_db)):
     get_client_or_404(db, data.client_id)
     deal = models.Deal(**data.model_dump(mode="json"))
@@ -79,7 +82,7 @@ def create_deal(data: schemas.DealCreate, db: Session = Depends(get_db)):
     return deal
 
 
-@app.get("/deals", response_model=list[schemas.DealOut])
+@app.get("/deals", response_model=list[schemas.DealOut], dependencies=protected)
 def list_deals(
     status: schemas.DealStatus | None = None, db: Session = Depends(get_db)
 ):
@@ -89,7 +92,7 @@ def list_deals(
     return db.scalars(query).all()
 
 
-@app.put("/deals/{deal_id}", response_model=schemas.DealOut)
+@app.put("/deals/{deal_id}", response_model=schemas.DealOut, dependencies=protected)
 def update_deal(
     deal_id: int, data: schemas.DealCreate, db: Session = Depends(get_db)
 ):
@@ -102,7 +105,7 @@ def update_deal(
     return deal
 
 
-@app.delete("/deals/{deal_id}", status_code=204)
+@app.delete("/deals/{deal_id}", status_code=204, dependencies=protected)
 def delete_deal(deal_id: int, db: Session = Depends(get_db)):
     db.delete(get_deal_or_404(db, deal_id))
     db.commit()
