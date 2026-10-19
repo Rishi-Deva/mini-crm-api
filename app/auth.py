@@ -12,7 +12,7 @@ from sqlalchemy.orm import Session
 from . import models
 from .db import get_db
 
-SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-change-me")
+SECRET_KEY = os.getenv("SECRET_KEY", "dev-secret-key-change-me-in-production-0123456789")
 ALGORITHM = "HS256"
 TOKEN_TTL_MINUTES = 60
 
