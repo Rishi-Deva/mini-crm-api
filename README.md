@@ -5,7 +5,6 @@
 A small REST API for managing clients and deals, built with FastAPI.
 Includes JWT authentication, SQLite storage, automated tests and Docker support.
 
-![Swagger UI](docs/screenshot.png)
 
 ## Features
 
