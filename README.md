@@ -79,3 +79,21 @@ tests/         # pytest tests
 Dockerfile
 docker-compose.yml
 ```
+
+## API testing with Postman
+
+The file `Mini CRM API.postman_collection.json` contains a Postman collection with 14 automated API tests (all passing).
+
+What is covered:
+
+- Access without a token is denied (401)
+- User registration, including a duplicate username (409)
+- Login with automatic saving of the JWT token
+- Creating a client and a deal with response checks
+- Negative cases: negative deal amount (422), deal for a non-existent client (404), deleting a client that has deals (409)
+
+How to run:
+
+1. Start the API: `docker compose up -d`
+2. In Postman: **Import** → select the collection file
+3. Run the whole collection with **Collection Runner**
